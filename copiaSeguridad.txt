@@ -1,0 +1,58 @@
+#!/bin/bash   # Con esta primera línea aclaro que el intérprete es bash
+
+verificar_parametros(){
+    if [ -z "$1" ]; then    # Chequea si pasaron un nombre de largo 0
+        echo "nombre vacio"
+        exit 1 # Sale con un código de error
+    fi  # Fin del if
+}
+
+nombre_usuario=$1
+directorio_origen="/home/$1"
+directorio_destino="/home/backup/$nombre_usuario"
+
+verificar_directorio_origen() {
+    if [ ! -d "$directorio_origen" ]; then
+        echo "no existe el directorio de origen" # Caso de que no existe un directorio con ese nombre
+        exit 1 # Sale con código de error
+    fi
+}
+
+copiar_directorio(){
+    echo "Verificando si el directorio de destino ya existe..."
+    if [ -d "$directorio_destino" ]; then
+        echo "El directorio ya existe. ¿Desea sobreescribirlo? (s/n)"
+        read respuesta
+        if [ "$respuesta" != "s" ]; then
+            echo "Introduzca el nombre de la nueva carpeta de backup:"
+            read nuevo_nombre
+            directorio_destino="${directorio_destino}_$nuevo_nombre"
+            echo "Creando una nueva carpeta de backup: $directorio_destino"
+        fi
+    fi
+
+    echo "Realizando copia de seguridad..."
+    cp -r "$directorio_origen" "$directorio_destino"
+    if [ $? -ne 0 ]; then
+        echo "No se pudo copiar el directorio."
+        exit 1
+    else
+        echo "Copia de seguridad realizada con éxito."
+    fi
+}
+
+cambiar_propietario_copia(){
+    chown -R root:root "$directorio_destino"
+    if [ $? -ne 0 ]; then 
+        echo "no se pudo cambiar propietario"
+        exit 1
+    fi
+}
+
+cambiar_permisos() {
+    chmod -R 444 "$directorio_destino"
+    if [ $? -ne 0 ]; then
+        echo "no se pudo cambiar los permisos"
+        exit 1
+    fi
+}
