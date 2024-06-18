@@ -13,7 +13,7 @@ public class Consumidor implements Runnable {
             while (true) {
                 Integer valor = cola.take();
                 System.out.println("Consumido: " + valor);
-                Thread.sleep(1500); // Simula el tiempo de consumo
+                Thread.sleep(1000); // Simula el tiempo de consumo
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
